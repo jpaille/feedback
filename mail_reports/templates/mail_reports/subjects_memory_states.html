@@ -1,0 +1,42 @@
+{% extends "mail_reports/block.html" %}
+{% load get_memory_state_bar_width_from_percentage %}
+
+{% block block_content %}
+    <h3 style="color: #3A3B3C; line-height: 26px; margin-bottom: 2rem; font-size: 1.2rem; text-align: center; margin: 0 auto 1rem;">
+       Memory state
+    </h3>
+    {% for subject_memory_state in subjects_memory_states %}
+        <div>
+            <ul>
+                <li ><div style="margin-bottom : 10px;"> {{ subject_memory_state.subject }}  </div>
+                    <table cellspacing="0" cellpadding="0" border="0">
+                        <tr> 
+                            {% if subject_memory_state.retained_info_percentage != 0 %} 
+                                <td style="padding-left : 4px;" width=" {{subject_memory_state.retained_info_percentage|get_memory_state_bar_width_from_percentage}}"  bgcolor="#27B990">
+                                    <i>{{ subject_memory_state.retained_info_percentage }}%</i>
+                                </td>
+                            {% endif %}
+                            {% if subject_memory_state.lost_info_percentage != 0 %} 
+                                <td width="{{subject_memory_state.lost_info_percentage|get_memory_state_bar_width_from_percentage}}"  bgcolor="#E32561">
+                                </td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+        </div>
+    {% endfor %}
+                <table style="margin-bottom : 4px;" cellspacing="0" cellpadding="0" border="0">
+                        <tr>     
+                            <td width="15"  bgcolor="#27B990"> &nbsp; </td> <td style="padding-left : 4px;"> Retained information percentage.</td>
+                        </tr>
+                </table>
+
+                <table cellspacing="0" cellpadding="0" border="0">
+                        <tr>     
+                            <td width="15"  bgcolor="#E32561"> &nbsp; </td> <td style="padding-left : 4px;"> Forgotten information percentage.</td>
+                        </tr>
+                </table>
+                                
+{% endblock %}
+

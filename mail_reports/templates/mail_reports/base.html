@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %} Feedback mail reports {% endblock %}</title>
+        <style type="text/css">
+         {% include "mail_reports/mail_reports.css" %}
+        </style>
+    </head>
+    <body style="background: #F9F9F9; color: #373737; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 17px; line-height: 24px; max-width: 100%; width: 100% !important; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0 auto; padding: 0;">
+        <table class="mail-report-body" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; line-height: 24px; margin: 0; padding-bottom: 1rem; width: 100%; font-size: 17px; color: #373737; background: #F9F9F9;">
+         
+            {% include "mail_reports/top_header.html" %}
+        {% block content %}
+                {% include "mail_reports/feedbacks_scheduler_report.html" %}
+                {% include "mail_reports/subjects_memory_states.html" %}
+                {% include "mail_reports/next_week_feedback_sessions.html" %}
+            {% endblock %}
+        </table>
+        {% include "mail_reports/footer.html" %}
+    </body>
+</html>

@@ -1,0 +1,32 @@
+{% extends "mail_reports/block.html" %}
+{% block block_content %}
+            <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px; text-align: center;"><img src="https://raw.githubusercontent.com/jpaille/feedbacks/jpaille/make-scheduling-abstract/mail_reports/static/mail_reports/img/books.png" width="76" height="76" style="-ms-interpolation-mode: bicubic; outline: none; text-decoration: none; width: 76px;"></p>
+    <h3 style="color: #3A3B3C; line-height: 26px; margin-bottom: 2rem; font-size: 1.2rem; text-align: center; margin: 0 auto 1rem;">
+       Next week feedbacks sessions.
+    </h3>
+    <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px;">
+        {% if next_week_feedbacks %}
+            {% for feedback in next_week_feedbacks %}
+                <ul>
+                    <li>
+                        {{ feedback.subject.title }} <i> ({{ feedback.duration }}) </i>
+                    </li>
+                </ul>
+            {% endfor %}
+            <p>
+                It will take approximately a total of
+                <span style="color : #27B990;"> 
+                {% if next_week_total_feedbacks_duration.hours %}
+                    {{next_week_total_feedbacks_duration.hours}} hours
+                {% endif %}
+                {% if next_week_total_feedbacks_duration.minutes %}
+                    {{next_week_total_feedbacks_duration.minutes}} minutes
+                {% endif %}
+                </span> review time, good work !
+            </p>
+        {% else %}
+            <p>No feedbacks session scheduled next weeks! Take advantage of this free time to learn new things!</p>
+        {% endif %}
+            
+    </p>
+{% endblock %}

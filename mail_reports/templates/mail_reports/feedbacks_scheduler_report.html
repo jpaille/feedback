@@ -1,0 +1,48 @@
+{% extends "mail_reports/block.html" %}
+
+    {% block block_content %}
+        <div style="max-width: 600px; margin: 0 auto;">
+            <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px; text-align: center;"><img src="https://raw.githubusercontent.com/jpaille/feedbacks/jpaille/make-scheduling-abstract/mail_reports/static/mail_reports/img/logo_mail_reports.png" width="76" height="76" style="-ms-interpolation-mode: bicubic; outline: none; text-decoration: none; width: 76px;"></p>
+            <h2 style="color: #3A3B3C; line-height: 30px; margin-bottom: 12px; margin: 0 auto 0.75rem; font-size: 1.8rem; text-align: center;">
+                Feedback Weekly Summary
+            </h2>
+            <h3 style="color: #3A3B3C; line-height: 26px; margin-bottom: 2rem; font-size: 1.2rem; text-align: center; margin: 0 auto 1rem;">
+                {{ report_scheduler_start_date|date:"l, F jS" }} - {{ report_scheduler_end_date|date:"l, F jS Y" }}
+            </h3>
+            <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px;">Hope you had a good weekend! Here's a summary of what you have done last week:</p>
+            {% if validated_feedbacks or failed_feedbacks %}
+                {% if validated_feedbacks %}
+                    <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px;">
+                        <strong style="color: #27B990;">You validated: </strong>
+                        {% for scheduler_report in validated_feedbacks %}
+                            <ul>
+                                <li>
+                                    {{ scheduler_report.subject }} <i> (-->  {{scheduler_report.next_feedback_date|date:"F jS Y" }}) </i>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    </p>
+                {% endif %}
+                {% if failed_feedbacks %}
+                    <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px;">
+                        <strong style="color: #E32561;">You failed: </strong>
+                    
+                        {% for scheduler_report in failed_feedbacks %}
+                            <ul>
+                                <li>{{ scheduler_report.subject }}.</li>
+                            </ul>
+                        {% endfor %}
+                    </p>
+                {% else %}
+                <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px; color: #27B990;"">
+                    Well done you have validated all feedbacks sessions! Carry on like this!
+                </p>
+                {% endif %}
+            {% else %}
+                <p style="font-size: 17px; line-height: 24px; margin: 0 0 16px; color: #27B990;"">
+                    No feedbacks sessions this week. :)
+                </p>
+            {% endif %}
+        </div>
+    {% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "stats/base.html" %}
+{% load progress_bar %}
+
+{% block content %}
+    
+    <div class='container'>
+        {% for subject, progression_value in subjects_progression.items %}
+
+            <div class='row'>
+                <div class='col-xs-6'>
+                    {{ subject }}  
+                    <div class="progress">
+
+                        <div class="{{ progression_value|get_progress_color }}" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{ progression_value }}%;">
+                           {{ progression_value }} % 
+                </div>
+            </div>
+        </div>
+    </div>
+        {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,4 @@
+*.pyc
+oauth_credentials.json
+db.sqlite3
+.gitignore
