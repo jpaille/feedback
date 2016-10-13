@@ -15,7 +15,7 @@ class UtilsTestCase(TestCase):
     def test_get_lost_info_percentage(self):
         get_feedback_factory_class().create_batch(3, subject=self.subject, _done=True)
         self.subject.penalties = 2
-        self.assertEqual(33.3, get_lost_info_percentage(self.subject))
+        self.assertEqual(66.7, get_lost_info_percentage(self.subject))
 
 @override_settings(USE_GOOGLE_CALENDAR=True)
 class UtilsTestCaseWithGoogleCalendar(UtilsTestCase):
