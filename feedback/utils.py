@@ -1,4 +1,3 @@
-from collections import namedtuple
 from datetime import datetime, timedelta
 
 from pytz import timezone as tz
@@ -18,25 +17,17 @@ def current_time():
     timezone.activate(tz(settings.CURRENT_TIME_ZONE))
     return timezone.localtime(timezone.now())
 
-Duration  = namedtuple('Duration', ['hours', 'minutes'])
+def get_sum_of_feedbacks_duration(feedbacks):
+    """Sum all given feedbacks duration.
 
-def get_hours_and_minutes_from_timedelta(timedelta):
-    """
-    Convert timedelta seconds in hours and minutes.
+    Args:
+        feedbacks (list): A list of `models.Feedbacks`
 
     Returns:
-        `Duration` (hours, minutes)
-    """
+        `datetime.timedelta`: The sum of all feedbacks duration.
 
-    hours, remainder = divmod(timedelta.seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    return Duration(hours, minutes)
-
-def get_sum_of_feedbacks_duration(feedbacks):
-    """Take a list of `models.Feedbacks` and return the sum of
-       all feedbacks session duration.
     """
     total_duration = timedelta(0)
     for feedback in feedbacks:
         total_duration += feedback.duration
-    return get_hours_and_minutes_from_timedelta(total_duration)
+    return total_duration
