@@ -24,12 +24,12 @@ class GoogleCalendarClient(object):
             service = discovery.build('calendar', 'v3', http=http)
             self.service = service
 
-    def create_event(self, summary, date, last_feedback_duration=datetime.timedelta(0)):
+    def create_event(self, summary, date, last_feedback_duration=datetime.timedelta(0), color_id=2):
         date = date.strftime("%Y-%m-%d")
         event = {
             'summary': summary,
             'location': ':'.join(str(last_feedback_duration).split(':')[:2]), ## remove seconds
-            'colorId' : "2",
+            'colorId' : color_id,
             'start': {'date': date},
             'end': {'date': date}
         }
@@ -71,12 +71,13 @@ class GoogleCalendarOfflineClient(object):
     def __init__(self):
         self.events = {}
 
-    def create_event(self, summary, date, last_feedback_duration=0):
-        event = {"start": {u'date': date.strftime("%Y-%m-%d")},
+    def create_event(self, summary, date, last_feedback_duration=0, color_id='2'):
+        event = {"id" : uuid.uuid4().hex,
+                 "summary": summary,
+                 "start": {u'date': date.strftime("%Y-%m-%d")},
                  "end": {u'date': date.strftime("%Y-%m-%d")},
                  'location': ':'.join(str(last_feedback_duration).split(':')[:2]), ## remove seconds
-                 "summary": summary,
-                 "id" : uuid.uuid4().hex,
+                 'colorId' : color_id,
                  "status" : "confirmed"}
         self.events[event["id"]] = event
         return event

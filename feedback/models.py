@@ -8,7 +8,7 @@ from googleapiclient.errors import HttpError
 from polymorphic.models import PolymorphicModel
 
 from google_calendar_api.client import get_google_calendar_client
-from feedback.utils import next_monday_date
+from feedback.utils import next_monday_date, get_google_calendar_event_color_from_penalties
 
 def get_feedback_class():
     if settings.USE_GOOGLE_CALENDAR:
@@ -80,7 +80,7 @@ class GoogleCalendarFeedback(Feedback):
         event = self.google_calendar_client.get_event(self.event_id)
         if event.get("description", None) and event["description"] == "d":
             self._done = True
-            self.update_duration_field(event)
+            self.get_duration_field_from_calendar(event)
         return self._done
 
     @done.setter
@@ -98,13 +98,11 @@ class GoogleCalendarFeedback(Feedback):
                                                                      self.date,
                                                                      str(self.subject.feedback_session_duration))["id"]
         else:
-            if self.__original_date != self.date:
-                fields = {"start" : {"date" : self.date.strftime("%Y-%m-%d")},
-                          "end" :{"date" : self.date.strftime("%Y-%m-%d")}}
-                self.google_calendar_client.update_event(self.event_id, fields)
+            if self.__original_date != self.date: ## This means that the feedback was postponed.
+                self._update_calendar_event()
         super(GoogleCalendarFeedback, self).save(*args, **kwargs)
 
-    def update_duration_field(self, event):
+    def get_duration_field_from_calendar(self, event):
         """
         We want to enter the duration of the feedback session directly into google calendar.
         There is no duration field in the calendar event. So we will arbitrarily ask the user
@@ -117,6 +115,12 @@ class GoogleCalendarFeedback(Feedback):
         else:
             duration_time = datetime.datetime.strptime(duration, "%H:%M")
             self.duration = datetime.timedelta(hours=duration_time.hour, minutes=duration_time.minute)
+
+    def _update_calendar_event(self):
+        fields = {"start": {"date" : self.date.strftime("%Y-%m-%d")},
+                  "end": {"date" : self.date.strftime("%Y-%m-%d")},
+                  "colorId": get_google_calendar_event_color_from_penalties(self.subject.penalties)}
+        self.google_calendar_client.update_event(self.event_id, fields)
 
 @receiver(pre_delete)
 def delete_event(sender, instance, **kwargs):

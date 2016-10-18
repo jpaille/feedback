@@ -31,3 +31,21 @@ def get_sum_of_feedbacks_duration(feedbacks):
     for feedback in feedbacks:
         total_duration += feedback.duration
     return total_duration
+
+def get_google_calendar_event_color_from_penalties(penalties):
+    """Get the google calendar event color id from subject penalties.
+
+    This is used to warn the student that a feedback has to be done as a priority.
+    So we arbitrary display feedbacks with 2 penalties in orange event and
+    and feedbacks with more than 2 penalites in red.
+
+    Returns:
+        The google calendar event color id as string.
+
+    """
+    if  penalties == 0:
+        return '2'
+    if  penalties == 2:
+        return '6'
+    elif penalties > 2:
+        return '11'
