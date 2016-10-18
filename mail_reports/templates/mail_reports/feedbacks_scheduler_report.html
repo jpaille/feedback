@@ -17,7 +17,8 @@
                         {% for scheduler_report in validated_feedbacks %}
                             <ul>
                                 <li>
-                                    {{ scheduler_report.subject }} <i> (-->  {{scheduler_report.next_feedback_date|date:"F jS Y" }}) </i>
+                                    {{ scheduler_report.subject }}</br>
+                                    <i> Next feedback in {{ scheduler_report.next_feedback_date|timeuntil }} on {{scheduler_report.next_feedback_date|date:"F jS Y" }}.</i>
                                 </li>
                             </ul>
                         {% endfor %}
