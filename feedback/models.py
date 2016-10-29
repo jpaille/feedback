@@ -96,7 +96,8 @@ class GoogleCalendarFeedback(Feedback):
         if not self.pk: ## Ensure that the object doesn't exist already.
             self.event_id = self.google_calendar_client.create_event(self.subject.title,
                                                                      self.date,
-                                                                     str(self.subject.feedback_session_duration))["id"]
+                                                                     str(self.subject.feedback_session_duration),
+                                                                     color_id=get_google_calendar_event_color_from_penalties(self.subject.penalties))["id"]
         else:
             if self.__original_date != self.date: ## This means that the feedback was postponed.
                 self._update_calendar_event()

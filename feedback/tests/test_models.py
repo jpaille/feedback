@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from django.test import TestCase, override_settings
 
-from feedback.tests.factories import SubjectFactory, get_feedback_factory_class
+from feedback.tests.factories import SubjectFactory, GoogleCalendarFeedbackFactory, get_feedback_factory_class
 from feedback.models import Feedback
 
 @override_settings(USE_GOOGLE_CALENDAR=False)
@@ -61,6 +61,11 @@ class GoogleCalendarFeedbackTestCase(TestCase):
         event = self.feedback.google_calendar_client.get_event(self.feedback.event_id)
         self.assertEqual(event["start"]["date"], updated_date.strftime("%Y-%m-%d"))
         self.assertEqual(event["end"]["date"], updated_date.strftime("%Y-%m-%d"))
+    def test_event_color_after_feedback_creation(self):
+        self.subject.penalties = 2
+        feedback = GoogleCalendarFeedbackFactory(subject=self.subject)
+        event = self.feedback.google_calendar_client.get_event(feedback.event_id)
+        self.assertEqual(event["colorId"], '6')
     def test_event_color_after_date_change(self):
         event = self.feedback.google_calendar_client.get_event(self.feedback.event_id)
         self.assertEqual(event["colorId"], '2')
