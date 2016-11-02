@@ -2,7 +2,8 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 import datetime as datetime_module
 
-from pytz import utc
+from django.conf import settings
+from pytz import timezone
 
 from feedback.utils import next_monday_date, current_time
 from feedback.models import Feedback, get_feedback_class
@@ -50,7 +51,7 @@ class FeedbackScheduler(object):
     def is_feedback_time_elapsed(self):
         limite_date = datetime.combine(self.last_feedback.date,
                                        datetime_module.time(0)) + timedelta(weeks=1, minutes=-18)
-        if utc.localize(limite_date) < current_time():
+        if timezone(settings.CURRENT_TIME_ZONE).localize(limite_date) < current_time():
             return True
         return False
 

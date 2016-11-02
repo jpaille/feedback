@@ -1,9 +1,13 @@
 from datetime import datetime
 from  datetime import timedelta
 import datetime as datetime_module
-from mock import patch
 
+from mock import patch
+from pytz import timezone
+
+from django.conf import settings
 from django.test import TestCase, override_settings
+
 from pytz import utc
 
 from feedback.feedbacks_scheduler import FeedbackScheduler, FeedbackSchedulerReport
@@ -43,7 +47,8 @@ class FeedbackSchedulerTestCase(TestCase):
         next_monday = next_monday_date()
         self.feedback_class(subject=self.subject, date=previous_monday)
         fake_datetime = datetime.combine(next_monday, datetime_module.time(0)) - timedelta(minutes=17) ## next sunday 11:43pm.
-        with patch("feedback.feedbacks_scheduler.current_time", return_value=utc.localize(fake_datetime)):
+        with patch("feedback.feedbacks_scheduler.current_time",
+                   return_value=timezone(settings.CURRENT_TIME_ZONE).localize(fake_datetime)):
             report_scheduler = FeedbackScheduler(self.subject).schedule()
         postponed_feedback = self.subject.get_last_feedback()
         self.assertEqual(postponed_feedback.date, next_monday)
