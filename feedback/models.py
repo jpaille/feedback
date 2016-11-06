@@ -18,7 +18,6 @@ def get_feedback_class():
 class Subject(models.Model):
     title = models.CharField(max_length=30)
     nbr_of_cards = models.IntegerField()
-    feedback_session_duration = models.DurationField(default=datetime.timedelta(hours=2))
     penalties = models.IntegerField(default=0)
 
     def __unicode__(self):
@@ -26,9 +25,6 @@ class Subject(models.Model):
 
     def get_last_feedback(self):
         return Feedback.objects.filter(subject=self).last()
-
-    def update_feedback_session_duration(self):
-        self.feedback_session_duration = self.get_last_feedback().duration
 
     def update_penalties(self, is_feedback_done=False):
         if not is_feedback_done:
@@ -50,6 +46,7 @@ class Feedback(PolymorphicModel):
     subject = models.ForeignKey('Subject')
     date = models.DateField(default=datetime.datetime.now().date())
     _done = models.BooleanField(default=False)
+
     duration = models.DurationField(default=datetime.timedelta(hours=2))
 
     @property
@@ -59,6 +56,18 @@ class Feedback(PolymorphicModel):
     @done.setter
     def done(self, value):
         self._done = value
+
+    def save(self, *args, **kwargs):
+        """Set duration field according to the last feedback duration."""
+        if not self.pk: ## Ensure that the object doesn't exist already.
+            self.duration = self._get_last_feedback_duration()
+        super(Feedback, self).save(*args, **kwargs)
+
+    def _get_last_feedback_duration(self):
+        last_feedback = self.subject.get_last_feedback()
+        if last_feedback:
+            return last_feedback.duration
+        return datetime.timedelta(hours=2)
 
 class GoogleCalendarFeedback(Feedback):
     google_calendar_client = get_google_calendar_client()
@@ -80,7 +89,7 @@ class GoogleCalendarFeedback(Feedback):
         event = self.google_calendar_client.get_event(self.event_id)
         if event.get("description", None) and event["description"] == "d":
             self._done = True
-            self.get_duration_field_from_calendar(event)
+            self.set_duration_field_from_calendar(event)
         return self._done
 
     @done.setter
@@ -96,26 +105,27 @@ class GoogleCalendarFeedback(Feedback):
         if not self.pk: ## Ensure that the object doesn't exist already.
             self.event_id = self.google_calendar_client.create_event(self.subject.title,
                                                                      self.date,
-                                                                     str(self.subject.feedback_session_duration),
+                                                                     str(self._get_last_feedback_duration()),
                                                                      color_id=get_google_calendar_event_color_from_penalties(self.subject.penalties))["id"]
         else:
             if self.__original_date != self.date: ## This means that the feedback was postponed.
                 self._update_calendar_event()
         super(GoogleCalendarFeedback, self).save(*args, **kwargs)
 
-    def get_duration_field_from_calendar(self, event):
+    def set_duration_field_from_calendar(self, event):
         """
         We want to enter the duration of the feedback session directly into google calendar.
         There is no duration field in the calendar event. So we will arbitrarily ask the user
         to put this data inside the `location` field. (`description` field is already taken)
         We extract the duration from the event and send it to the database.
+
+        This function is called right after a feedback was validated (feedback.done = True)
         """
         duration = event.get("location", None)
-        if not duration:
-            return datetime.timedelta(hours=0)
-        else:
+        if duration:
             duration_time = datetime.datetime.strptime(duration, "%H:%M")
             self.duration = datetime.timedelta(hours=duration_time.hour, minutes=duration_time.minute)
+            self.save()
 
     def _update_calendar_event(self):
         fields = {"start": {"date" : self.date.strftime("%Y-%m-%d")},

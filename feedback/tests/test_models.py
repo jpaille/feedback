@@ -14,11 +14,6 @@ class SubjectTestCase(TestCase):
         self.assertTrue(isinstance(Feedback.objects.get(subject=self.subject), Feedback))
     def test_get_last_feedback(self):
         self.assertEqual(Feedback.objects.get(subject=self.subject), self.feedback)
-    def test_update_feedback_session_duration(self):
-        self.assertEqual(self.feedback.duration, timedelta(seconds=7200))
-        get_feedback_factory_class()(subject=self.subject, duration=timedelta(hours=4))
-        self.subject.update_feedback_session_duration()
-        self.assertEqual(self.subject.get_last_feedback().duration, timedelta(hours=4))
     def test_update_penalties_no_penalties_feedback_done(self):
         self.subject.update_penalties(True)
         self.assertEqual(self.subject.penalties, 0)
@@ -35,9 +30,17 @@ class SubjectTestCase(TestCase):
 class SubjectTestCaseWithGoogleCalendar(SubjectTestCase):
     pass
 
-
-class FeedbackTestCase():
-    pass
+@override_settings(USE_GOOGLE_CALENDAR=False)
+class FeedbackTestCase(TestCase):
+    def setUp(self):
+        self.subject = SubjectFactory()
+        self.feedback = self.subject.get_last_feedback()
+    def test_last_feedback_duration_attribute(self):
+        self.feedback.duration = timedelta(hours=3)
+        self.feedback.save()
+        feedback = Feedback(subject=self.subject)
+        feedback.save()
+        self.assertEqual(feedback.duration, self.feedback.duration)
 
 @override_settings(USE_GOOGLE_CALENDAR=True)
 class GoogleCalendarFeedbackTestCase(TestCase):
@@ -73,10 +76,13 @@ class GoogleCalendarFeedbackTestCase(TestCase):
         self._update_date()
         event = self.feedback.google_calendar_client.get_event(self.feedback.event_id)
         self.assertEqual(event["colorId"], '11')
-    def test_get_duration_field_from_calendar(self):
+    def test_set_duration_field_from_calendar(self):
         self.assertEqual(self.feedback.duration, timedelta(seconds=7200))
-        self.feedback.get_duration_field_from_calendar({"location" : "02:30"})
-        self.assertEqual(self.feedback.duration, timedelta(hours=2, minutes=30))
+        self.feedback.google_calendar_client.update_event(self.feedback.event_id, {"location" :"03:30"})
+        self.feedback.set_duration_field_from_calendar(self.feedback.google_calendar_client.get_event(self.feedback.event_id))
+        self.assertEqual(self.feedback.duration, timedelta(hours=3, minutes=30))
+        feedback = GoogleCalendarFeedbackFactory(subject=self.subject)
+        self.assertEqual(feedback.duration, timedelta(hours=3, minutes=30))
     def test_delete_feedback(self):
         client = self.feedback.google_calendar_client
         event_id = self.feedback.event_id

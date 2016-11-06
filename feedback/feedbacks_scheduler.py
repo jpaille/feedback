@@ -33,7 +33,6 @@ class FeedbackScheduler(object):
         is_last_feedback_done = self.last_feedback.done
         if is_last_feedback_done: ## Nice , create a new feedback session.
             next_feedback_date = self.calculate_next_feedback_date()
-            self.subject.update_feedback_session_duration()
             self.subject.update_penalties(is_feedback_done=True)
 
             get_feedback_class()(subject=self.subject, date=next_feedback_date).save()
