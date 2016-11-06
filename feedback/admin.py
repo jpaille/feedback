@@ -7,7 +7,7 @@ class FeedbackAdmin(admin.ModelAdmin):
     list_display = ("subject", "done", "duration", "date")
 
 class GoogleCalendarFeedbackAdmin(admin.ModelAdmin):
-    list_display = ("subject", "done", "duration", "date", "event_id")
+    list_display = ("subject", "duration", "date", "event_id")
 
 admin.site.register(Subject)
 
