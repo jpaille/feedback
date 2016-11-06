@@ -31,7 +31,9 @@ class GoogleCalendarClient(object):
             'location': ':'.join(str(last_feedback_duration).split(':')[:2]), ## remove seconds
             'colorId' : color_id,
             'start': {'date': date},
-            'end': {'date': date}
+            'end': {'date': date},
+            'reminders' : {'useDefault': 'False',
+                           'overrides' : []} ## disable notification.
         }
         event = self.service.events().insert(calendarId='primary',
                                              body=event).execute()
@@ -78,6 +80,7 @@ class GoogleCalendarOfflineClient(object):
                  "end": {u'date': date.strftime("%Y-%m-%d")},
                  'location': ':'.join(str(last_feedback_duration).split(':')[:2]), ## remove seconds
                  'colorId' : color_id,
+                 'reminders' : {'useDefault': 'False', 'overrides' : [{}]}, ## disable notification.
                  "status" : "confirmed"}
         self.events[event["id"]] = event
         return event
